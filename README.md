@@ -32,3 +32,37 @@
 	// アクタの原点からの相対位置
 	VisualMesh->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 ```
+
+## カメラ切り替え
+
+1. 切り替えを行いたいカメラを配置する
+1. それらを保持する
+1. 切り替えたいタイミングでプレイヤーコントローラーにセットする
+
+2：保持するメンバを追加
+```cpp
+	// アクタ型で保持する
+	// ここでは不特定数として配列にしている
+	UPROPERTY(EditAnywhere)
+	TArray<AActor*> Cameras;
+```
+3：切り替え処理
+```cpp
+// プレイヤーコントローラー取得のために追加のインクルードが必要
+#include "Kismet/GameplayStatics.h"
+
+	/* 中略 */
+
+	// プレイヤーコントローラー取得
+	APlayerController* OurPlayerController = UGameplayStatics::GetPlayerController(this, 0);
+
+	// （何度も配列にアクセスするのは面倒なので変数化）
+	// ※nullチェックは省略
+	auto TargetCamera = Cameras[NowCameraIndex];
+
+	// 瞬時に切り替える
+	OurPlayerController->SetViewTarget(TargetCamera);
+
+	// スムース（移動+回転）で切り替える
+	OurPlayerController->SetViewTargetWithBlend(TargetCamera, SmoothBlendTime);
+```
